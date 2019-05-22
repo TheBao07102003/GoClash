@@ -49,6 +49,7 @@ type WarParticipant struct {
 	CollectionDayBattlesPlayed int    `json:"collectionDayBattlesPlayed"`
 	CardsEarned                int    `json:"cardsEarned"`
 	BattlesPlayed              int    `json:"battlesPlayed"`
+	NumberOfBattles            int    `json:"numberOfBattles"`
 	Wins                       int    `json:"wins"`
 }
 
