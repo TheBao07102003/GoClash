@@ -16,7 +16,13 @@ import (
 // This is the time format used by time fields -- we'll be using it to provide cleaner APIs.
 var TimeLayout = "20060102T150405.000Z"
 
-type logTimeFunc func(status string, source string, label string, elapsed time.Duration)
+type logTimeFunc func(
+	statusCode string,
+	method string,
+	hostname string,
+	path string,
+	elapsed time.Duration,
+)
 
 type Client struct {
 	BaseURL     *url.URL
@@ -116,7 +122,7 @@ func (c *Client) Do(req *http.Request, v interface{}, label string) (*http.Respo
 	resp, err := c.httpClient.Do(req)
 
 	if err != nil {
-		c.logTime(http.StatusInternalServerError, label, start)
+		c.logTime(http.StatusInternalServerError, req.Method, label, start)
 		c.logger.Println("Request error", err.Error())
 		return nil, err
 	}
@@ -136,13 +142,18 @@ func (c *Client) Do(req *http.Request, v interface{}, label string) (*http.Respo
 		err = json.NewDecoder(resp.Body).Decode(v)
 	}
 
-	c.logTime(resp.StatusCode, label, start)
+	c.logTime(resp.StatusCode, req.Method, label, start)
 
 	return resp, err
 }
-
-func (c *Client) logTime(statusCode int, label string, start time.Time) {
-	c.logTimeFunc(strconv.Itoa(statusCode), "clashroyale", label, time.Since(start))
+func (c *Client) logTime(statusCode int, method string, path string, start time.Time) {
+	c.logTimeFunc(
+		strconv.Itoa(statusCode),
+		method,
+		"api.clashroyale.com",
+		path,
+		time.Since(start),
+	)
 }
 
 // make sure the tag is prefixed with a # if it doesn't have one
