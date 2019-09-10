@@ -145,12 +145,13 @@ func (c *Client) Clan(tag string) *ClanService {
 // Get information about a single clan by clan tag.
 // Clan tags can be found using clan search operation.
 func (i *ClanService) Get() (Clan, error) {
-	url := fmt.Sprintf("/v1/clans/%s", NormaliseTag(i.tag))
+	path := "/v1/clans/%s"
+	url := fmt.Sprintf(path, NormaliseTag(i.tag))
 	req, err := i.c.NewRequest("GET", url, nil)
 	var clan Clan
 
 	if err == nil {
-		_, err = i.c.Do(req, &clan)
+		_, err = i.c.Do(req, &clan, path)
 	}
 
 	return clan, err
@@ -158,12 +159,13 @@ func (i *ClanService) Get() (Clan, error) {
 
 // Retrieve information about clan's current clan war
 func (i *ClanService) CurrentWar() (CurrentWar, error) {
-	url := fmt.Sprintf("/v1/clans/%s/currentwar", NormaliseTag(i.tag))
+	path := "/v1/clans/%s/currentwar"
+	url := fmt.Sprintf(path, NormaliseTag(i.tag))
 	req, err := i.c.NewRequest("GET", url, nil)
 	var war CurrentWar
 
 	if err == nil {
-		_, err = i.c.Do(req, &war)
+		_, err = i.c.Do(req, &war, path)
 	}
 
 	return war, err
@@ -171,12 +173,13 @@ func (i *ClanService) CurrentWar() (CurrentWar, error) {
 
 // Retrieve clan's clan war log
 func (i *ClanService) WarLog() (WarLogPager, error) {
-	url := fmt.Sprintf("/v1/clans/%s/warlog", NormaliseTag(i.tag))
+	path := "/v1/clans/%s/warlog"
+	url := fmt.Sprintf(path, NormaliseTag(i.tag))
 	req, err := i.c.NewRequest("GET", url, nil)
 	var warLog WarLogPager
 
 	if err == nil {
-		_, err = i.c.Do(req, &warLog)
+		_, err = i.c.Do(req, &warLog, path)
 	}
 
 	return warLog, err
@@ -184,12 +187,13 @@ func (i *ClanService) WarLog() (WarLogPager, error) {
 
 // List clan members
 func (i *ClanService) Members() (MemberPager, error) {
-	url := fmt.Sprintf("/v1/clans/%s/members", NormaliseTag(i.tag))
+	path := "/v1/clans/%s/members"
+	url := fmt.Sprintf(path, NormaliseTag(i.tag))
 	req, err := i.c.NewRequest("GET", url, nil)
 	var members MemberPager
 
 	if err == nil {
-		_, err = i.c.Do(req, &members)
+		_, err = i.c.Do(req, &members, path)
 	}
 
 	return members, err
@@ -199,7 +203,8 @@ func (i *ClanService) Members() (MemberPager, error) {
 // At least one filtering criteria must be defined and if name is used
 // as part of search, it is required to be at least three characters long.
 func (i *ClansService) Search(query *ClanQuery) (ClanPager, error) {
-	req, err := i.c.NewRequest("GET", "/v1/clans", nil)
+	path := "/v1/clans"
+	req, err := i.c.NewRequest("GET", path, nil)
 	q := req.URL.Query()
 
 	if query.LocationId > 0 {
@@ -241,7 +246,7 @@ func (i *ClansService) Search(query *ClanQuery) (ClanPager, error) {
 	var clans ClanPager
 
 	if err == nil {
-		_, err = i.c.Do(req, &clans)
+		_, err = i.c.Do(req, &clans, path)
 	}
 
 	return clans, err

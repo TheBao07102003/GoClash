@@ -1,1 +1,4 @@
 .idea/
+cover.out
+go.mod
+go.sum

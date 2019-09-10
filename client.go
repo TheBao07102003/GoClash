@@ -9,18 +9,22 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strconv"
 	"time"
 )
 
 // This is the time format used by time fields -- we'll be using it to provide cleaner APIs.
 var TimeLayout = "20060102T150405.000Z"
 
+type logTimeFunc func(status string, source string, label string, elapsed time.Duration)
+
 type Client struct {
-	BaseURL    *url.URL
-	UserAgent  string
-	Bearer     string
-	httpClient http.Client
-	logger     *log.Logger
+	BaseURL     *url.URL
+	UserAgent   string
+	Bearer      string
+	httpClient  http.Client
+	logger      *log.Logger
+	logTimeFunc logTimeFunc
 }
 
 // Base struct for paged queries.
@@ -67,8 +71,12 @@ func NewClient(token string) *Client {
 	return client
 }
 
-func (c *Client) SetTimeout (duration time.Duration) {
+func (c *Client) SetTimeout(duration time.Duration) {
 	c.httpClient.Timeout = duration
+}
+
+func (c *Client) SetLogLatencyFunc(logTime logTimeFunc) {
+	c.logTimeFunc = logTime
 }
 
 // make a new request object.
@@ -101,11 +109,14 @@ func (c *Client) NewRequest(method, path string, body interface{}) (*http.Reques
 }
 
 // execute the request.
-func (c *Client) Do(req *http.Request, v interface{}) (*http.Response, error) {
+func (c *Client) Do(req *http.Request, v interface{}, label string) (*http.Response, error) {
+	start := time.Now()
+
 	c.logger.Println(req.Method, req.URL.String())
 	resp, err := c.httpClient.Do(req)
 
 	if err != nil {
+		c.logTime(http.StatusInternalServerError, label, start)
 		c.logger.Println("Request error", err.Error())
 		return nil, err
 	}
@@ -125,7 +136,13 @@ func (c *Client) Do(req *http.Request, v interface{}) (*http.Response, error) {
 		err = json.NewDecoder(resp.Body).Decode(v)
 	}
 
+	c.logTime(resp.StatusCode, label, start)
+
 	return resp, err
+}
+
+func (c *Client) logTime(statusCode int, label string, start time.Time) {
+	c.logTimeFunc(strconv.Itoa(statusCode), "clashroyale", label, time.Since(start))
 }
 
 // make sure the tag is prefixed with a # if it doesn't have one

@@ -22,12 +22,13 @@ func (c *Client) Replay(tag string) *ReplayService {
 
 // Get information about a single replay by a replay tag.
 func (i *ReplayService) Get() (Replay, error) {
-	url := fmt.Sprintf("/v1/replays/%s", NormaliseTag(i.tag))
+	path := "/v1/replays/%s"
+	url := fmt.Sprintf(path, NormaliseTag(i.tag))
 	req, err := i.c.NewRequest("GET", url, nil)
 	var replay Replay
 
 	if err == nil {
-		_, err = i.c.Do(req, &replay)
+		_, err = i.c.Do(req, &replay, path)
 	}
 
 	return replay, err

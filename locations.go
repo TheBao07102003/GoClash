@@ -66,12 +66,13 @@ func (c *Client) Location(id string) *LocationService {
 
 // List all available locations
 func (i *LocationsService) All() (LocationPager, error) {
-	req, err := i.c.NewRequest("GET", "/v1/locations", nil)
+	path := "/v1/locations"
+	req, err := i.c.NewRequest("GET", path, nil)
 
 	var locations LocationPager
 
 	if err == nil {
-		_, err = i.c.Do(req, &locations)
+		_, err = i.c.Do(req, &locations, path)
 	}
 
 	return locations, err
@@ -79,12 +80,13 @@ func (i *LocationsService) All() (LocationPager, error) {
 
 // Get information about specific location
 func (i *LocationService) Get() (Location, error) {
-	req, err := i.c.NewRequest("GET", fmt.Sprintf("/v1/locations/%s", i.id), nil)
+	path := "/v1/locations/%s"
+	req, err := i.c.NewRequest("GET", fmt.Sprintf(path, i.id), nil)
 
 	var location Location
 
 	if err == nil {
-		_, err = i.c.Do(req, &location)
+		_, err = i.c.Do(req, &location, path)
 	}
 
 	return location, err
@@ -92,7 +94,8 @@ func (i *LocationService) Get() (Location, error) {
 
 // Get clan rankings for a specific location
 func (i *LocationService) ClanRankings(query *PagedQuery) (LocationClanRankingPager, error) {
-	req, err := i.c.NewRequest("GET", fmt.Sprintf("/v1/locations/%s/rankings/clans", i.id), nil)
+	path := "/v1/locations/%s/rankings/clans"
+	req, err := i.c.NewRequest("GET", fmt.Sprintf(path, i.id), nil)
 
 	q := req.URL.Query()
 
@@ -113,7 +116,7 @@ func (i *LocationService) ClanRankings(query *PagedQuery) (LocationClanRankingPa
 	var rankings LocationClanRankingPager
 
 	if err == nil {
-		_, err = i.c.Do(req, &rankings)
+		_, err = i.c.Do(req, &rankings, path)
 	}
 
 	return rankings, err
@@ -121,7 +124,8 @@ func (i *LocationService) ClanRankings(query *PagedQuery) (LocationClanRankingPa
 
 // Get player rankings for a specific location
 func (i *LocationService) PlayerRankings(query *PagedQuery) (LocationPlayerRankingPager, error) {
-	req, err := i.c.NewRequest("GET", fmt.Sprintf("/v1/locations/%s/rankings/players", i.id), nil)
+	path := "/v1/locations/%s/rankings/players"
+	req, err := i.c.NewRequest("GET", fmt.Sprintf(path, i.id), nil)
 
 	q := req.URL.Query()
 
@@ -142,7 +146,7 @@ func (i *LocationService) PlayerRankings(query *PagedQuery) (LocationPlayerRanki
 	var rankings LocationPlayerRankingPager
 
 	if err == nil {
-		_, err = i.c.Do(req, &rankings)
+		_, err = i.c.Do(req, &rankings, path)
 	}
 
 	return rankings, err
@@ -150,7 +154,8 @@ func (i *LocationService) PlayerRankings(query *PagedQuery) (LocationPlayerRanki
 
 // Get clan war rankings for a specific location
 func (i *LocationService) ClanWarRankings(query *PagedQuery) (LocationClanRankingPager, error) {
-	req, err := i.c.NewRequest("GET", fmt.Sprintf("/v1/locations/%s/rankings/clanwars", i.id), nil)
+	path := "/v1/locations/%s/rankings/clanwars"
+	req, err := i.c.NewRequest("GET", fmt.Sprintf(path, i.id), nil)
 
 	q := req.URL.Query()
 
@@ -171,7 +176,7 @@ func (i *LocationService) ClanWarRankings(query *PagedQuery) (LocationClanRankin
 	var rankings LocationClanRankingPager
 
 	if err == nil {
-		_, err = i.c.Do(req, &rankings)
+		_, err = i.c.Do(req, &rankings, path)
 	}
 
 	return rankings, err
