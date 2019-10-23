@@ -2,13 +2,19 @@ package clash
 
 import "fmt"
 
+type ReplayVersion struct {
+	Major   int `json:"major"`
+	Build   int `json:"build"`
+	Content int `json:"content"`
+}
 type Replay struct {
 	BattleTime string `json:"battleTime"`
 	// Replay data is hideously unstructured, so let's save some time.
 	ReplayData map[string]interface{} `json:"replayData"`
-	ShareCount int `json:"shareCount"`
-	Tag string `json:"tag"`
-	ViewCount int `json:"viewCount"`
+	ShareCount int                    `json:"shareCount"`
+	Tag        string                 `json:"tag"`
+	ViewCount  int                    `json:"viewCount"`
+	Version    ReplayVersion          `json:"version"`
 }
 
 type ReplayService struct {

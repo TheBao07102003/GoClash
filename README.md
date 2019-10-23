@@ -32,3 +32,7 @@ if err, ok := err.(clash.APIError); ok {
     // handle a clash API error response
 }
 ```
+
+git tag -a v2.13.0
+
+git push origin --tags

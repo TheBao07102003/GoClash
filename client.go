@@ -146,6 +146,7 @@ func (c *Client) Do(req *http.Request, v interface{}, label string) (*http.Respo
 	return resp, err
 }
 func (c *Client) logTime(statusCode int, method string, path string, start time.Time) {
+
 	c.logTimeFunc(
 		strconv.Itoa(statusCode),
 		method,
