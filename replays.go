@@ -7,6 +7,7 @@ type ReplayVersion struct {
 	Build   int `json:"build"`
 	Content int `json:"content"`
 }
+
 type Replay struct {
 	BattleTime string `json:"battleTime"`
 	// Replay data is hideously unstructured, so let's save some time.
