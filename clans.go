@@ -26,7 +26,6 @@ type Clan struct {
 	RequiredTrophies  int          `json:"requiredTrophies"`
 	DonationsPerWeek  int          `json:"donationsPerWeek"`
 	ClanChestStatus   string       `json:"clanChestStatus"`
-	ClanChestPoints   int          `json:"clanChestPoints"`
 	ClanChestLevel    int          `json:"clanChestLevel"`
 	ClanChestMaxLevel int          `json:"clanChestMaxLevel"`
 	Members           int          `json:"members"`
@@ -46,22 +45,18 @@ type MemberPager struct {
 type WarParticipant struct {
 	Tag                        string `json:"tag"`
 	Name                       string `json:"name"`
-	CollectionDayBattlesPlayed int    `json:"collectionDayBattlesPlayed"`
-	CardsEarned                int    `json:"cardsEarned"`
-	BattlesPlayed              int    `json:"battlesPlayed"`
-	NumberOfBattles            int    `json:"numberOfBattles"`
-	Wins                       int    `json:"wins"`
+	Fame                       int    `json:"fame"`
+	RepairPoints               int    `json:"repairPoints"`
 }
 
 type WarClanDetails struct {
 	Tag           string `json:"tag"`
 	Name          string `json:"name"`
 	BadgeId       int    `json:"badgeId"`
-	ClanScore     int    `json:"clanScore"`
+	Fame          int    `json:"fame"`
+	RepairPoints  int    `json:"repairPoints"`
 	Participants  int    `json:"participants"`
-	BattlesPlayed int    `json:"battlesPlayed"`
-	Wins          int    `json:"wins"`
-	Crowns        int    `json:"crowns"`
+	ClanScore     int    `json:"clanScore"`
 }
 
 type WarStanding struct {
@@ -88,27 +83,17 @@ type WarLogPager struct {
 
 type CurrentWar struct {
 	State                string           `json:"state"`
-	RawCollectionEndTime string           `json:"collectionEndTime"`
 	Clan                 WarClanDetails   `json:"clan"`
 	Clans                []WarClanDetails `json:"clans"`
 	Participants         []WarParticipant `json:"participants"`
-	RawWarEndTime        string           `json:"warEndTime"`
-}
-
-func (w *CurrentWar) CollectionEndTime() time.Time {
-	parsed, _ := time.Parse(TimeLayout, w.RawCollectionEndTime)
-	return parsed
-}
-
-func (w *CurrentWar) WarEndTime() time.Time {
-	parsed, _ := time.Parse(TimeLayout, w.RawWarEndTime)
-	return parsed
+	SectionIndex         int              `json:"sectionIndex"`
 }
 
 type ClanMember struct {
 	Tag               string `json:"tag"`
 	Name              string `json:"name"`
 	Role              string `json:"role"`
+	RawLastSeen       string `json:"lastSeen"`
 	ExpLevel          int    `json:"expLevel"`
 	Trophies          int    `json:"trophies"`
 	Arena             Arena  `json:"arena"`
@@ -116,8 +101,7 @@ type ClanMember struct {
 	PreviousClanRank  int    `json:"previousClanRank"`
 	Donations         int    `json:"donations"`
 	DonationsReceived int    `json:"donationsReceived"`
-	ClanChestPoints   int    `json:"clanChestPoints"`
-	RawLastSeen       string `json:"lastSeen"`
+	clanChestPoints   int    `json:"clanChestPoints"`
 }
 
 func (c *ClanMember) LastSeen() time.Time {
@@ -159,7 +143,7 @@ func (i *ClanService) Get() (Clan, error) {
 
 // Retrieve information about clan's current clan war
 func (i *ClanService) CurrentWar() (CurrentWar, error) {
-	path := "/v1/clans/%s/currentwar"
+	path := "/v1/clans/%s/currentriverrace"
 	url := fmt.Sprintf(path, NormaliseTag(i.tag))
 	req, err := i.c.NewRequest("GET", url, nil)
 	var war CurrentWar
@@ -173,7 +157,7 @@ func (i *ClanService) CurrentWar() (CurrentWar, error) {
 
 // Retrieve clan's clan war log
 func (i *ClanService) WarLog() (WarLogPager, error) {
-	path := "/v1/clans/%s/warlog"
+	path := "/v1/clans/%s/riverracelog"
 	url := fmt.Sprintf(path, NormaliseTag(i.tag))
 	req, err := i.c.NewRequest("GET", url, nil)
 	var warLog WarLogPager
