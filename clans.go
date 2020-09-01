@@ -50,14 +50,14 @@ type WarParticipant struct {
 }
 
 type WarClanDetails struct {
-	Tag           string `json:"tag"`
-	Name          string `json:"name"`
-	BadgeId       int    `json:"badgeId"`
-	Fame          int    `json:"fame"`
-	RepairPoints  int    `json:"repairPoints"`
-	Participants  int    `json:"participants"`
-	ClanScore     int    `json:"clanScore"`
-	RawFinishTime string `json:"finishTime"`
+	Tag           string              `json:"tag"`
+	Name          string              `json:"name"`
+	BadgeId       int                 `json:"badgeId"`
+	Fame          int                 `json:"fame"`
+	RepairPoints  int                 `json:"repairPoints"`
+	Participants  []WarParticipant    `json:"participants"`
+	ClanScore     int                 `json:"clanScore"`
+	RawFinishTime string              `json:"finishTime"`
 }
 
 func (w *WarClanDetails) FinishTime() time.Time {
