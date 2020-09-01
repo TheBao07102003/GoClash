@@ -66,7 +66,7 @@ func (w *WarClanDetails) FinishTime() time.Time {
 }
 
 type WarStanding struct {
-    Rank         int            `json:"rank"`
+	Rank         int            `json:"rank"`
 	TrophyChange int            `json:"trophyChange"`
 	Clan         WarClanDetails `json:"clan"`
 }
