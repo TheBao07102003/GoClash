@@ -57,18 +57,26 @@ type WarClanDetails struct {
 	RepairPoints  int    `json:"repairPoints"`
 	Participants  int    `json:"participants"`
 	ClanScore     int    `json:"clanScore"`
+	RawFinishTime string `json:"finishTime"`
+}
+
+func (w *WarClanDetails) FinishTime() time.Time {
+	parsed, _ := time.Parse(TimeLayout, w.RawFinishTime)
+	return parsed
 }
 
 type WarStanding struct {
-	Clan         WarClanDetails `json:"clan"`
+    Rank         int            `json:"rank"`
 	TrophyChange int            `json:"trophyChange"`
+	Clan         WarClanDetails `json:"clan"`
 }
 
 type War struct {
+	Standings      []WarStanding    `json:"standings"`
 	SeasonId       int              `json:"seasonId"`
 	RawCreatedDate string           `json:"createdDate"`
 	Participants   []WarParticipant `json:"participants"`
-	Standings      []WarStanding    `json:"standings"`
+	SectionIndex   int              `json:"sectionIndex"`
 }
 
 func (w *War) CreatedDate() time.Time {
