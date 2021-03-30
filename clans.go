@@ -43,21 +43,23 @@ type MemberPager struct {
 }
 
 type WarParticipant struct {
-	Tag                        string `json:"tag"`
-	Name                       string `json:"name"`
-	Fame                       int    `json:"fame"`
-	RepairPoints               int    `json:"repairPoints"`
+	Tag          string `json:"tag"`
+	Name         string `json:"name"`
+	Fame         int    `json:"fame"`
+	RepairPoints int    `json:"repairPoints"`
+	BoatAttacks  int    `json:"boatAttacks"`
+	DecksUsed    int    `json:"decksUsed"`
 }
 
 type WarClanDetails struct {
-	Tag           string              `json:"tag"`
-	Name          string              `json:"name"`
-	BadgeId       int                 `json:"badgeId"`
-	Fame          int                 `json:"fame"`
-	RepairPoints  int                 `json:"repairPoints"`
-	Participants  []WarParticipant    `json:"participants"`
-	ClanScore     int                 `json:"clanScore"`
-	RawFinishTime string              `json:"finishTime"`
+	Tag           string           `json:"tag"`
+	Name          string           `json:"name"`
+	BadgeId       int              `json:"badgeId"`
+	Fame          int              `json:"fame"`
+	RepairPoints  int              `json:"repairPoints"`
+	Participants  []WarParticipant `json:"participants"`
+	ClanScore     int              `json:"clanScore"`
+	RawFinishTime string           `json:"finishTime"`
 }
 
 func (w *WarClanDetails) FinishTime() time.Time {
@@ -90,11 +92,11 @@ type WarLogPager struct {
 }
 
 type CurrentWar struct {
-	State                string           `json:"state"`
-	Clan                 WarClanDetails   `json:"clan"`
-	Clans                []WarClanDetails `json:"clans"`
-	Participants         []WarParticipant `json:"participants"`
-	SectionIndex         int              `json:"sectionIndex"`
+	State        string           `json:"state"`
+	Clan         WarClanDetails   `json:"clan"`
+	Clans        []WarClanDetails `json:"clans"`
+	Participants []WarParticipant `json:"participants"`
+	SectionIndex int              `json:"sectionIndex"`
 }
 
 type ClanMember struct {
