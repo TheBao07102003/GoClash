@@ -39,12 +39,17 @@ type Achievement struct {
 	Info   string `json:"info"`
 }
 
+type BadgeIconUrls struct {
+	Large string `json:"large"`
+}
+
 type Badge struct {
-	Name     string `json:"name"`
-	Level    int    `json:"level,omitempty"`
-	MaxLevel int    `json:"maxLevel,omitempty"`
-	Progress int    `json:"progress,omitempty"`
-	Target   int    `json:"target,omitempty"`
+	Name     string        `json:"name"`
+	Level    int           `json:"level,omitempty"`
+	MaxLevel int           `json:"maxLevel,omitempty"`
+	Progress int           `json:"progress,omitempty"`
+	Target   int           `json:"target,omitempty"`
+	IconUrls BadgeIconUrls `json:"iconUrls"`
 }
 
 type PlayerClan struct {
