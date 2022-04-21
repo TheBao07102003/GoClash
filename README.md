@@ -33,6 +33,6 @@ if err, ok := err.(clash.APIError); ok {
 }
 ```
 
-git tag -a v2.13.0
+git tag -a v2.23.0
 
 git push origin --tags

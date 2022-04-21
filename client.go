@@ -5,10 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"net/url"
-	"os"
 	"strconv"
 	"time"
 )
@@ -29,7 +27,7 @@ type Client struct {
 	UserAgent   string
 	Bearer      string
 	httpClient  http.Client
-	logger      *log.Logger
+	logger      LoggerInterface
 	logTimeFunc logTimeFunc
 }
 
@@ -64,9 +62,13 @@ type Paging struct {
 	} `json:"cursors"`
 }
 
-func NewClient(token string) *Client {
+type LoggerInterface interface {
+	Error(format string, a ...any)
+	Info(format string, a ...any)
+}
+
+func NewClient(token string, logger LoggerInterface) *Client {
 	base, _ := url.Parse("https://api.clashroyale.com")
-	logger := log.New(os.Stdout, "(go-clash) ", 0)
 
 	client := &Client{
 		Bearer:  token,
@@ -117,19 +119,22 @@ func (c *Client) NewRequest(method, path string, body interface{}) (*http.Reques
 func (c *Client) Do(req *http.Request, v interface{}, label string) (*http.Response, error) {
 	start := time.Now()
 
-	c.logger.Println(req.Method, req.URL.String())
+	c.logger.Info("(go-clash) %s -> %s", req.Method, req.URL.String())
 	resp, err := c.httpClient.Do(req)
 
 	if err != nil {
 		c.logTime(http.StatusInternalServerError, req.Method, label, start)
-		c.logger.Println("Request error", err.Error())
+		c.logger.Error("(go-clash) Request error: %s -> %s: %s", req.Method, req.URL.String(), err.Error())
+
 		return nil, err
 	}
 
 	defer resp.Body.Close()
 
 	if resp.StatusCode >= 400 {
-		c.logger.Println("Unexpected status code", resp.StatusCode)
+		c.logger.Error(
+			"(go-clash) Unexpected status code: %d -> %s: %s", resp.StatusCode, req.Method, req.URL.String(),
+		)
 
 		errorResponse := &ErrorBody{}
 		err = json.NewDecoder(resp.Body).Decode(errorResponse)
@@ -145,8 +150,8 @@ func (c *Client) Do(req *http.Request, v interface{}, label string) (*http.Respo
 
 	return resp, err
 }
-func (c *Client) logTime(statusCode int, method string, path string, start time.Time) {
 
+func (c *Client) logTime(statusCode int, method string, path string, start time.Time) {
 	c.logTimeFunc(
 		strconv.Itoa(statusCode),
 		method,
