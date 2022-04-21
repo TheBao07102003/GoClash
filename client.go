@@ -65,8 +65,8 @@ type Paging struct {
 
 func NewClient(
 	token string,
-	logError func(format string, a ...any),
-	logInfo func(format string, a ...any),
+	logError func(format string, a ...interface{}),
+	logInfo func(format string, a ...interface{}),
 ) *Client {
 	base, _ := url.Parse("https://api.clashroyale.com")
 
