@@ -27,8 +27,8 @@ type Client struct {
 	UserAgent   string
 	Bearer      string
 	httpClient  http.Client
-	logError    func(format string, a ...any)
-	logInfo     func(format string, a ...any)
+	logError    func(format string, a ...interface{})
+	logInfo     func(format string, a ...interface{})
 	logTimeFunc logTimeFunc
 }
 
