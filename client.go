@@ -27,7 +27,8 @@ type Client struct {
 	UserAgent   string
 	Bearer      string
 	httpClient  http.Client
-	logger      LoggerInterface
+	logError    func(format string, a ...any)
+	logInfo     func(format string, a ...any)
 	logTimeFunc logTimeFunc
 }
 
@@ -62,18 +63,18 @@ type Paging struct {
 	} `json:"cursors"`
 }
 
-type LoggerInterface interface {
-	Error(format string, a ...any)
-	Info(format string, a ...any)
-}
-
-func NewClient(token string, logger LoggerInterface) *Client {
+func NewClient(
+	token string,
+	logError func(format string, a ...any),
+	logInfo func(format string, a ...any),
+) *Client {
 	base, _ := url.Parse("https://api.clashroyale.com")
 
 	client := &Client{
-		Bearer:  token,
-		BaseURL: base,
-		logger:  logger,
+		Bearer:   token,
+		BaseURL:  base,
+		logError: logError,
+		logInfo:  logInfo,
 	}
 
 	return client
@@ -119,12 +120,12 @@ func (c *Client) NewRequest(method, path string, body interface{}) (*http.Reques
 func (c *Client) Do(req *http.Request, v interface{}, label string) (*http.Response, error) {
 	start := time.Now()
 
-	c.logger.Info("(go-clash) %s -> %s", req.Method, req.URL.String())
+	c.logInfo("(go-clash) %s -> %s", req.Method, req.URL.String())
 	resp, err := c.httpClient.Do(req)
 
 	if err != nil {
 		c.logTime(http.StatusInternalServerError, req.Method, label, start)
-		c.logger.Error("(go-clash) Request error: %s -> %s: %s", req.Method, req.URL.String(), err.Error())
+		c.logError("(go-clash) Request error: %s -> %s: %s", req.Method, req.URL.String(), err.Error())
 
 		return nil, err
 	}
@@ -132,7 +133,7 @@ func (c *Client) Do(req *http.Request, v interface{}, label string) (*http.Respo
 	defer resp.Body.Close()
 
 	if resp.StatusCode >= 400 {
-		c.logger.Error(
+		c.logError(
 			"(go-clash) Unexpected status code: %d -> %s: %s", resp.StatusCode, req.Method, req.URL.String(),
 		)
 
