@@ -5,9 +5,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -128,13 +130,15 @@ func (c *Client) NewRequest(method, path string, body interface{}) (*http.Reques
 // execute the request.
 func (c *Client) Do(req *http.Request, v interface{}, label string) (*http.Response, error) {
 	start := time.Now()
-
 	c.logInfo("(go-clash) %s -> %s", req.Method, req.URL.String())
-	resp, err := c.httpClient.Do(req)
 
+	resp, err := c.httpClient.Do(req)
 	if err != nil {
+		rawBody, _ := ioutil.ReadAll(resp.Body)
+		body := strings.TrimSpace(string(rawBody))
 		c.logTime(http.StatusInternalServerError, req.Method, label, start)
-		c.logError("(go-clash) Request error: %s -> %s: %s", req.Method, req.URL.String(), err.Error())
+		c.logError("(go-clash) Request error: %s -> %s: %s, body: %s",
+			req.Method, req.URL.String(), err.Error(), body)
 
 		return nil, err
 	}
@@ -142,21 +146,25 @@ func (c *Client) Do(req *http.Request, v interface{}, label string) (*http.Respo
 	defer resp.Body.Close()
 
 	if resp.StatusCode >= 400 {
+
+		errorResponse := &ErrorBody{}
+		err = json.NewDecoder(resp.Body).Decode(errorResponse)
+		if err == nil {
+			err = &APIError{resp, errorResponse}
+		}
+
 		// skip 404
 		if resp.StatusCode == http.StatusNotFound {
 			c.logInfo(
 				"(go-clash) Unexpected status code: %d -> %s: %s", resp.StatusCode, req.Method, req.URL.String(),
 			)
 		} else {
+			rawBody, _ := ioutil.ReadAll(resp.Body)
+			body := strings.TrimSpace(string(rawBody))
 			c.logError(
-				"(go-clash) Unexpected status code: %d -> %s: %s", resp.StatusCode, req.Method, req.URL.String(),
+				"(go-clash) Unexpected status code: %d -> %s: %s, body: %s",
+				resp.StatusCode, req.Method, req.URL.String(), body,
 			)
-		}
-
-		errorResponse := &ErrorBody{}
-		err = json.NewDecoder(resp.Body).Decode(errorResponse)
-		if err == nil {
-			err = &APIError{resp, errorResponse}
 		}
 
 	} else {
