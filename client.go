@@ -134,8 +134,11 @@ func (c *Client) Do(req *http.Request, v interface{}, label string) (*http.Respo
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
-		rawBody, _ := ioutil.ReadAll(resp.Body)
-		body := strings.TrimSpace(string(rawBody))
+		var body string
+		if resp != nil {
+			rawBody, _ := ioutil.ReadAll(resp.Body)
+			body = strings.TrimSpace(string(rawBody))
+		}
 
 		c.logTime(http.StatusInternalServerError, req.Method, label, start)
 		c.logError("(go-clash) Request error: %s -> %s: %s, body: -->%s<--",
