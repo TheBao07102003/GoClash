@@ -55,6 +55,15 @@ func (e *APIError) Error() string {
 	return fmt.Sprintf("[%d] %s: %s", e.Response.StatusCode, e.Body.Reason, e.Body.Message)
 }
 
+func IsNotFoundErr(rawErr error) bool {
+	e, ok := rawErr.(*APIError)
+	if !ok {
+		return false
+	}
+
+	return e.Response.StatusCode == http.StatusNotFound
+}
+
 // Paging for pager responses. 'before' and 'after' may be empty if there are no more results to return.
 type Paging struct {
 	Cursors struct {
@@ -133,16 +142,23 @@ func (c *Client) Do(req *http.Request, v interface{}, label string) (*http.Respo
 	defer resp.Body.Close()
 
 	if resp.StatusCode >= 400 {
-		c.logError(
-			"(go-clash) Unexpected status code: %d -> %s: %s", resp.StatusCode, req.Method, req.URL.String(),
-		)
+		// skip 404
+		if resp.StatusCode == http.StatusNotFound {
+			c.logInfo(
+				"(go-clash) Unexpected status code: %d -> %s: %s", resp.StatusCode, req.Method, req.URL.String(),
+			)
+		} else {
+			c.logError(
+				"(go-clash) Unexpected status code: %d -> %s: %s", resp.StatusCode, req.Method, req.URL.String(),
+			)
+		}
 
 		errorResponse := &ErrorBody{}
 		err = json.NewDecoder(resp.Body).Decode(errorResponse)
-
 		if err == nil {
 			err = &APIError{resp, errorResponse}
 		}
+
 	} else {
 		err = json.NewDecoder(resp.Body).Decode(v)
 	}
