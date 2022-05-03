@@ -136,8 +136,9 @@ func (c *Client) Do(req *http.Request, v interface{}, label string) (*http.Respo
 	if err != nil {
 		rawBody, _ := ioutil.ReadAll(resp.Body)
 		body := strings.TrimSpace(string(rawBody))
+
 		c.logTime(http.StatusInternalServerError, req.Method, label, start)
-		c.logError("(go-clash) Request error: %s -> %s: %s, body: %s",
+		c.logError("(go-clash) Request error: %s -> %s: %s, body: -->%s<--",
 			req.Method, req.URL.String(), err.Error(), body)
 
 		return nil, err
@@ -146,27 +147,38 @@ func (c *Client) Do(req *http.Request, v interface{}, label string) (*http.Respo
 	defer resp.Body.Close()
 
 	if resp.StatusCode >= 400 {
+		rawBody, errRead := ioutil.ReadAll(resp.Body)
+		if errRead != nil {
+			c.logError(
+				"(go-clash) failed to decode resp: %d -> %s: %s",
+				resp.StatusCode, req.Method, req.URL.String(),
+			)
+		}
 
 		errorResponse := &ErrorBody{}
-		err = json.NewDecoder(resp.Body).Decode(errorResponse)
+		err = json.Unmarshal(rawBody, errorResponse)
 		if err == nil {
 			err = &APIError{resp, errorResponse}
 		}
 
+		//err = json.NewDecoder(resp.Body).Decode(errorResponse)
+		//if err == nil {
+		//	err = &APIError{resp, errorResponse}
+		//}
+
+		body := strings.TrimSpace(string(rawBody))
 		// skip 404
 		if resp.StatusCode == http.StatusNotFound {
 			c.logInfo(
-				"(go-clash) Unexpected status code: %d -> %s: %s", resp.StatusCode, req.Method, req.URL.String(),
+				"(go-clash) Unexpected status code: %d -> %s: %s, body: -->%s<-- ",
+				resp.StatusCode, req.Method, req.URL.String(), body,
 			)
 		} else {
-			rawBody, _ := ioutil.ReadAll(resp.Body)
-			body := strings.TrimSpace(string(rawBody))
 			c.logError(
-				"(go-clash) Unexpected status code: %d -> %s: %s, body: %s",
+				"(go-clash) Unexpected status code: %d -> %s: %s, body: -->%s<--",
 				resp.StatusCode, req.Method, req.URL.String(), body,
 			)
 		}
-
 	} else {
 		err = json.NewDecoder(resp.Body).Decode(v)
 	}
