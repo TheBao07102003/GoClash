@@ -105,6 +105,7 @@ type Player struct {
 	CurrentFavouriteCard  FavouriteCard `json:"currentFavouriteCard"`
 	LeagueStatistics      LeagueStats   `json:"leagueStatistics"`
 	StarPoints            int           `json:"starPoints"`
+	ExpPoints             int           `json:"expPoints"`
 }
 
 type VerificationResult struct {
