@@ -1,0 +1,212 @@
+[
+  {
+    "tag": "#PLAYER4",
+    "name": "IceQueen",
+    "expLevel": 12,
+    "trophies": 4700,
+    "currentDeck": [
+      { "name": "Ice Wizard", "level": 8 },
+      { "name": "Baby Dragon", "level": 7 },
+      { "name": "Tornado", "level": 6 },
+      { "name": "Knight", "level": 8 },
+      { "name": "Archers", "level": 7 },
+      { "name": "Log", "level": 6 },
+      { "name": "Mega Minion", "level": 7 },
+      { "name": "Fireball", "level": 7 }
+    ],
+    "clan": {
+      "tag": "#CLAN3",
+      "name": "FrostBorn",
+      "badgeId": 3
+    }
+  },
+  {
+    "tag": "#PLAYER5",
+    "name": "ThunderZ",
+    "expLevel": 13,
+    "trophies": 5300,
+    "currentDeck": [
+      { "name": "Electro Wizard", "level": 9 },
+      { "name": "Giant", "level": 8 },
+      { "name": "Zap", "level": 8 },
+      { "name": "Mega Minion", "level": 8 },
+      { "name": "Mini P.E.K.K.A", "level": 9 },
+      { "name": "Archers", "level": 9 },
+      { "name": "Goblin Gang", "level": 8 },
+      { "name": "Fireball", "level": 7 }
+    ],
+    "clan": {
+      "tag": "#CLAN1",
+      "name": "LegendClan",
+      "badgeId": 1
+    }
+  },
+  {
+    "tag": "#PLAYER6",
+    "name": "LavaLord",
+    "expLevel": 14,
+    "trophies": 6000,
+    "currentDeck": [
+      { "name": "Lava Hound", "level": 10 },
+      { "name": "Balloon", "level": 9 },
+      { "name": "Tombstone", "level": 8 },
+      { "name": "Minions", "level": 8 },
+      { "name": "Zap", "level": 9 },
+      { "name": "Fireball", "level": 8 },
+      { "name": "Mega Minion", "level": 8 },
+      { "name": "Guards", "level": 7 }
+    ],
+    "clan": {
+      "tag": "#CLAN4",
+      "name": "SkyBurners",
+      "badgeId": 4
+    }
+  },
+  {
+    "tag": "#PLAYER7",
+    "name": "BanditGirl",
+    "expLevel": 12,
+    "trophies": 4950,
+    "currentDeck": [
+      { "name": "Bandit", "level": 9 },
+      { "name": "Royal Ghost", "level": 8 },
+      { "name": "Dark Prince", "level": 7 },
+      { "name": "Electro Wizard", "level": 7 },
+      { "name": "Log", "level": 7 },
+      { "name": "Battle Ram", "level": 8 },
+      { "name": "Fireball", "level": 6 },
+      { "name": "Zap", "level": 7 }
+    ],
+    "clan": {
+      "tag": "#CLAN1",
+      "name": "LegendClan",
+      "badgeId": 1
+    }
+  },
+  {
+    "tag": "#PLAYER8",
+    "name": "SkeletonKing",
+    "expLevel": 13,
+    "trophies": 5100,
+    "currentDeck": [
+      { "name": "Skeleton King", "level": 10 },
+      { "name": "Bomber", "level": 8 },
+      { "name": "Cannon", "level": 9 },
+      { "name": "Fireball", "level": 7 },
+      { "name": "Skeleton Army", "level": 8 },
+      { "name": "Arrows", "level": 8 },
+      { "name": "Mega Minion", "level": 8 },
+      { "name": "Knight", "level": 9 }
+    ],
+    "clan": {
+      "tag": "#CLAN2",
+      "name": "DarkClan",
+      "badgeId": 2
+    }
+  },
+  {
+    "tag": "#PLAYER9",
+    "name": "RocketBoy",
+    "expLevel": 11,
+    "trophies": 4300,
+    "currentDeck": [
+      { "name": "Rocket", "level": 8 },
+      { "name": "Goblin Gang", "level": 7 },
+      { "name": "Knight", "level": 7 },
+      { "name": "Princess", "level": 7 },
+      { "name": "Ice Spirit", "level": 8 },
+      { "name": "Tesla", "level": 7 },
+      { "name": "Fire Spirits", "level": 7 },
+      { "name": "Log", "level": 6 }
+    ],
+    "clan": {
+      "tag": "#CLAN5",
+      "name": "BoomSquad",
+      "badgeId": 5
+    }
+  },
+  {
+    "tag": "#PLAYER10",
+    "name": "HealerX",
+    "expLevel": 12,
+    "trophies": 4600,
+    "currentDeck": [
+      { "name": "Battle Healer", "level": 8 },
+      { "name": "Electro Dragon", "level": 7 },
+      { "name": "Baby Dragon", "level": 7 },
+      { "name": "Zap", "level": 8 },
+      { "name": "Fireball", "level": 7 },
+      { "name": "Barbarian Barrel", "level": 7 },
+      { "name": "Giant", "level": 8 },
+      { "name": "Minions", "level": 7 }
+    ],
+    "clan": {
+      "tag": "#CLAN6",
+      "name": "Healers",
+      "badgeId": 6
+    }
+  },
+  {
+    "tag": "#PLAYER11",
+    "name": "ArrowRain",
+    "expLevel": 10,
+    "trophies": 4200,
+    "currentDeck": [
+      { "name": "Arrows", "level": 9 },
+      { "name": "Archers", "level": 7 },
+      { "name": "Knight", "level": 7 },
+      { "name": "Fireball", "level": 6 },
+      { "name": "Giant", "level": 7 },
+      { "name": "Minions", "level": 6 },
+      { "name": "Bomber", "level": 6 },
+      { "name": "Goblin Barrel", "level": 6 }
+    ],
+    "clan": {
+      "tag": "#CLAN2",
+      "name": "DarkClan",
+      "badgeId": 2
+    }
+  },
+  {
+    "tag": "#PLAYER12",
+    "name": "MirrorKing",
+    "expLevel": 13,
+    "trophies": 5400,
+    "currentDeck": [
+      { "name": "Mirror", "level": 10 },
+      { "name": "Electro Giant", "level": 9 },
+      { "name": "Baby Dragon", "level": 9 },
+      { "name": "Lightning", "level": 8 },
+      { "name": "Tornado", "level": 8 },
+      { "name": "Mega Minion", "level": 9 },
+      { "name": "Cage", "level": 8 },
+      { "name": "Zap", "level": 9 }
+    ],
+    "clan": {
+      "tag": "#CLAN4",
+      "name": "SkyBurners",
+      "badgeId": 4
+    }
+  },
+  {
+    "tag": "#PLAYER13",
+    "name": "GoblinPro",
+    "expLevel": 11,
+    "trophies": 4400,
+    "currentDeck": [
+      { "name": "Goblin Barrel", "level": 9 },
+      { "name": "Goblin Gang", "level": 8 },
+      { "name": "Spear Goblins", "level": 8 },
+      { "name": "Knight", "level": 7 },
+      { "name": "Log", "level": 7 },
+      { "name": "Fireball", "level": 6 },
+      { "name": "Minions", "level": 7 },
+      { "name": "Tesla", "level": 7 }
+    ],
+    "clan": {
+      "tag": "#CLAN1",
+      "name": "LegendClan",
+      "badgeId": 1
+    }
+  }
+]

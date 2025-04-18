@@ -13,7 +13,6 @@ import (
 	"time"
 )
 
-// This is the time format used by time fields -- we'll be using it to provide cleaner APIs.
 var TimeLayout = "20060102T150405.000Z"
 
 type logTimeFunc func(
@@ -34,20 +33,17 @@ type Client struct {
 	logTimeFunc logTimeFunc
 }
 
-// Base struct for paged queries.
 type PagedQuery struct {
 	Limit  int
 	After  int
 	Before int
 }
 
-// The error response sent by the API if 4xx/5xx status code.
 type ErrorBody struct {
 	Reason  string `json:"reason"`
 	Message string `json:"message"`
 }
 
-// APIError implements the error interface.
 type APIError struct {
 	Response *http.Response
 	Body     *ErrorBody
@@ -62,11 +58,9 @@ func IsNotFoundErr(rawErr error) bool {
 	if !ok {
 		return false
 	}
-
 	return e.Response.StatusCode == http.StatusNotFound
 }
 
-// Paging for pager responses. 'before' and 'after' may be empty if there are no more results to return.
 type Paging struct {
 	Cursors struct {
 		Before string `json:"before"`
@@ -99,7 +93,6 @@ func (c *Client) SetLogLatencyFunc(logTime logTimeFunc) {
 	c.logTimeFunc = logTime
 }
 
-// make a new request object.
 func (c *Client) NewRequest(method, path string, body interface{}) (*http.Request, error) {
 	rel := &url.URL{Path: path}
 	u := c.BaseURL.ResolveReference(rel)
@@ -127,7 +120,6 @@ func (c *Client) NewRequest(method, path string, body interface{}) (*http.Reques
 	return req, nil
 }
 
-// execute the request.
 func (c *Client) Do(req *http.Request, v interface{}, label string) (*http.Response, error) {
 	start := time.Now()
 	c.logInfo("(go-clash) %s -> %s", req.Method, req.URL.String())
@@ -164,13 +156,7 @@ func (c *Client) Do(req *http.Request, v interface{}, label string) (*http.Respo
 			err = &APIError{resp, errorResponse}
 		}
 
-		//err = json.NewDecoder(resp.Body).Decode(errorResponse)
-		//if err == nil {
-		//	err = &APIError{resp, errorResponse}
-		//}
-
 		body := strings.TrimSpace(string(rawBody))
-		// skip 404
 		if resp.StatusCode == http.StatusNotFound {
 			c.logInfo(
 				"(go-clash) Unexpected status code: %d -> %s: %s, body: -->%s<-- ",
@@ -192,20 +178,20 @@ func (c *Client) Do(req *http.Request, v interface{}, label string) (*http.Respo
 }
 
 func (c *Client) logTime(statusCode int, method string, path string, start time.Time) {
-	c.logTimeFunc(
-		strconv.Itoa(statusCode),
-		method,
-		"api.clashroyale.com",
-		path,
-		time.Since(start),
-	)
+	if c.logTimeFunc != nil {
+		c.logTimeFunc(
+			strconv.Itoa(statusCode),
+			method,
+			"api.clashroyale.com",
+			path,
+			time.Since(start),
+		)
+	}
 }
 
-// make sure the tag is prefixed with a # if it doesn't have one
 func NormaliseTag(tag string) string {
 	if len(tag) > 0 && tag[0] == '#' {
 		return tag
 	}
-
 	return "#" + tag
 }
