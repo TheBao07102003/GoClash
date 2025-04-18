@@ -64,6 +64,9 @@ func main() {
 		errorLog: log.New(os.Stderr, "ERROR: ", log.LstdFlags),
 	}
 
+	// Declare player at the function scope
+	var player clash.Player
+
 	// Select mode (test or live)
 	fmt.Print("Select mode (1: Live Mode, 2: Test Mode): ")
 	scanner := bufio.NewScanner(os.Stdin)
@@ -75,16 +78,16 @@ func main() {
 	var mockPlayers []MockPlayer
 
 	if isTestMode {
-		// Read data from players.json
-		data, err := ioutil.ReadFile("players.json")
+		// Read data from player.json
+		data, err := ioutil.ReadFile("player.json")
 		if err != nil {
-			logger.Error("Error reading players.json: %v", err)
-			fmt.Println("Unable to read players.json. Exiting program.")
+			logger.Error("Error reading player.json: %v", err)
+			fmt.Println("Unable to read player.json. Exiting program.")
 			return
 		}
 		if err := json.Unmarshal(data, &mockPlayers); err != nil {
-			logger.Error("Error parsing players.json: %v", err)
-			fmt.Println("Unable to parse players.json. Exiting program.")
+			logger.Error("Error parsing player.json: %v", err)
+			fmt.Println("Unable to parse player.json. Exiting program.")
 			return
 		}
 	} else {
@@ -105,47 +108,50 @@ func main() {
 	}
 
 	// Enter player tag
-	fmt.Print("Enter player tag (e.g., #ABC123): ")
-	scanner.Scan()
-	playerTag := strings.TrimSpace(scanner.Text())
-	if playerTag == "" {
-		logger.Error("Player tag cannot be empty")
-		return
-	}
+	for {
+		fmt.Print("Enter player tag (e.g., #ABC123): ")
+		scanner.Scan()
+		playerTag := strings.TrimSpace(scanner.Text())
+		if playerTag == "" {
+			logger.Error("Player tag cannot be empty")
+			fmt.Println("Player tag cannot be empty. Please try again.")
+			continue
+		}
 
-	// Normalize tag
-	playerTag = strings.Replace(playerTag, "#", "%23", -1)
+		// Normalize tag
+		playerTag = strings.Replace(playerTag, "#", "%23", -1)
 
-	// Fetch player information
-	var player clash.Player
-	if isTestMode {
-		// Find player in mockPlayers
-		for _, mock := range mockPlayers {
-			if mock.Tag == strings.Replace(playerTag, "%23", "#", -1) {
-				player = clash.Player{
-					Tag:         mock.Tag,
-					Name:        mock.Name,
-					ExpLevel:    mock.ExpLevel,
-					Trophies:    mock.Trophies,
-					CurrentDeck: mock.CurrentDeck,
-					Clan:        mock.Clan,
+		// Fetch player information
+		if isTestMode {
+			// Find player in mockPlayers
+			for _, mock := range mockPlayers {
+				if mock.Tag == strings.Replace(playerTag, "%23", "#", -1) {
+					player = clash.Player{
+						Tag:         mock.Tag,
+						Name:        mock.Name,
+						ExpLevel:    mock.ExpLevel,
+						Trophies:    mock.Trophies,
+						CurrentDeck: mock.CurrentDeck,
+						Clan:        mock.Clan,
+					}
+					break
 				}
-				break
+			}
+			if player.Tag == "" {
+				logger.Error("Player tag %s not found in player.json", playerTag)
+				fmt.Println("Player not found in player.json. Please enter a valid tag (e.g., #PLAYER1 or #PLAYER2).")
+				continue
+			}
+		} else {
+			var err error
+			player, err = client.Player(playerTag).Get()
+			if err != nil {
+				logger.Error("Error fetching player data: %v", err)
+				fmt.Println("Player not found. Check tag or API token. Please try again.")
+				continue
 			}
 		}
-		if player.Tag == "" {
-			logger.Error("Player tag %s not found in players.json", playerTag)
-			fmt.Println("Player not found in players.json. Exiting program.")
-			return
-		}
-	} else {
-		var err error
-		player, err = client.Player(playerTag).Get()
-		if err != nil {
-			logger.Error("Error fetching player data: %v", err)
-			fmt.Println("Player not found. Check tag or API token.")
-			return
-		}
+		break // Tag found, exit loop
 	}
 
 	// Welcome player
@@ -176,7 +182,7 @@ func main() {
 		var opponentTrophies int
 
 		if isTestMode {
-			// In test mode, only Normal Mode is supported with opponents from players.json
+			// In test mode, only Normal Mode is supported with opponents from player.json
 			if mode != "1" {
 				fmt.Println("Test Mode only supports Normal Mode. Switching to Normal Mode.")
 				mode = "1"

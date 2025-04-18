@@ -1,5 +1,68 @@
 [
   {
+    "tag": "#PLAYER1",
+    "name": "ShadowX",
+    "expLevel": 13,
+    "trophies": 5200,
+    "currentDeck": [
+      { "name": "P.E.K.K.A", "level": 9 },
+      { "name": "Electro Wizard", "level": 9 },
+      { "name": "Zap", "level": 9 },
+      { "name": "Magic Archer", "level": 8 },
+      { "name": "Bandit", "level": 9 },
+      { "name": "Battle Ram", "level": 9 },
+      { "name": "Poison", "level": 8 },
+      { "name": "Royal Ghost", "level": 9 }
+    ],
+    "clan": {
+      "tag": "#CLAN7",
+      "name": "ShadowRealm",
+      "badgeId": 7
+    }
+  },
+  {
+    "tag": "#PLAYER2",
+    "name": "FireStorm",
+    "expLevel": 12,
+    "trophies": 4800,
+    "currentDeck": [
+      { "name": "Hog Rider", "level": 9 },
+      { "name": "Firecracker", "level": 8 },
+      { "name": "Cannon", "level": 8 },
+      { "name": "Ice Spirit", "level": 9 },
+      { "name": "Skeletons", "level": 9 },
+      { "name": "Fireball", "level": 8 },
+      { "name": "Log", "level": 7 },
+      { "name": "Musketeer", "level": 8 }
+    ],
+    "clan": {
+      "tag": "#CLAN8",
+      "name": "InfernoBlaze",
+      "badgeId": 8
+    }
+  },
+  {
+    "tag": "#PLAYER3",
+    "name": "NatureBoy",
+    "expLevel": 11,
+    "trophies": 4500,
+    "currentDeck": [
+      { "name": "Elixir Golem", "level": 8 },
+      { "name": "Battle Healer", "level": 7 },
+      { "name": "Electro Dragon", "level": 7 },
+      { "name": "Tornado", "level": 7 },
+      { "name": "Baby Dragon", "level": 7 },
+      { "name": "Heal Spirit", "level": 8 },
+      { "name": "Lightning", "level": 7 },
+      { "name": "Barbarian Barrel", "level": 7 }
+    ],
+    "clan": {
+      "tag": "#CLAN9",
+      "name": "NatureForce",
+      "badgeId": 9
+    }
+  },
+  {
     "tag": "#PLAYER4",
     "name": "IceQueen",
     "expLevel": 12,
