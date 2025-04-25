@@ -24,12 +24,12 @@ type CardStats struct {
 }
 
 var cardDatabase = map[string]CardStats{
-	"Giant":         {ElixirCost: 5, BaseDamage: 140, HitPoints: 2000},
+	"Giant":         {ElixirCost: 6, BaseDamage: 140, HitPoints: 2500},
 	"Musketeer":     {ElixirCost: 4, BaseDamage: 100, HitPoints: 600},
-	"Fireball":      {ElixirCost: 4, BaseDamage: 200, HitPoints: 0},
-	"Archers":       {ElixirCost: 3, BaseDamage: 80, HitPoints: 300},
-	"Knight":        {ElixirCost: 3, BaseDamage: 90, HitPoints: 1000},
-	"Arrows":        {ElixirCost: 3, BaseDamage: 120, HitPoints: 0},
+	"Fireball":      {ElixirCost: 3, BaseDamage: 200, HitPoints: 0},
+	"Archers":       {ElixirCost: 3, BaseDamage: 120, HitPoints: 350},
+	"Knight":        {ElixirCost: 3, BaseDamage: 200, HitPoints: 800},
+	"Arrows":        {ElixirCost: 2, BaseDamage: 100, HitPoints: 0},
 	"Goblin Barrel": {ElixirCost: 3, BaseDamage: 60, HitPoints: 150},
 	"Minions":       {ElixirCost: 3, BaseDamage: 70, HitPoints: 200},
 }
@@ -109,7 +109,7 @@ func main() {
 
 	// Enter player tag
 	for {
-		fmt.Print("Enter player tag (e.g., #ABC123): ")
+		fmt.Print("Enter player tag ( #ABC123): ")
 		scanner.Scan()
 		playerTag := strings.TrimSpace(scanner.Text())
 		if playerTag == "" {
