@@ -24,7 +24,7 @@ type CardStats struct {
 }
 
 var cardDatabase = map[string]CardStats{
-	"Giant":         {ElixirCost: 6, BaseDamage: 140, HitPoints: 2500},
+	"Giant":         {ElixirCost: 5, BaseDamage: 140, HitPoints: 2500},
 	"Musketeer":     {ElixirCost: 4, BaseDamage: 100, HitPoints: 600},
 	"Fireball":      {ElixirCost: 3, BaseDamage: 200, HitPoints: 0},
 	"Archers":       {ElixirCost: 3, BaseDamage: 120, HitPoints: 350},
