@@ -13,25 +13,43 @@ import (
 	"strings"
 	"time"
 
+	// Connects to provided files:
+	// - client.go: Provides Client, NewClient, SetLogLatencyFunc
+	// - clans.go: Provides ClanService, CurrentWar, Members
+	// - locations.go: Provides LocationService, PlayerRankings
+	// - players.go: Provides Player, Card, PlayerClan, PlayerService
+	// - tournaments.go: Provides TournamentService, TournamentsService, Tournament
 	"github.com/fiskie/go-clash/clash"
 )
 
-// CardStats defines detailed card information
-type CardStats struct {
-	ElixirCost int
-	BaseDamage int
-	HitPoints  int
+// Tower represents a tower with stats as per TCR Appendix
+type Tower struct {
+	Type     string  `json:"type"`
+	HP       int     `json:"hp"`
+	ATK      int     `json:"atk"`
+	DEF      int     `json:"def"`
+	CRIT     float64 `json:"crit"` // Crit chance (0.1 for King, 0.05 for Guard)
+	MaxHP    int     `json:"max_hp"`
 }
 
+// CardStats defines detailed card information
+type CardStats struct {
+	ElixirCost  int
+	BaseDamage  int
+	HitPoints   int
+	CritChance  float64 // Crit chance for the card (0.05 to 0.15)
+}
+
+// cardDatabase maps card names to their stats
 var cardDatabase = map[string]CardStats{
-	"Giant":         {ElixirCost: 5, BaseDamage: 140, HitPoints: 2500},
-	"Musketeer":     {ElixirCost: 4, BaseDamage: 100, HitPoints: 600},
-	"Fireball":      {ElixirCost: 3, BaseDamage: 200, HitPoints: 0},
-	"Archers":       {ElixirCost: 3, BaseDamage: 120, HitPoints: 350},
-	"Knight":        {ElixirCost: 3, BaseDamage: 200, HitPoints: 800},
-	"Arrows":        {ElixirCost: 2, BaseDamage: 100, HitPoints: 0},
-	"Goblin Barrel": {ElixirCost: 3, BaseDamage: 60, HitPoints: 150},
-	"Minions":       {ElixirCost: 3, BaseDamage: 70, HitPoints: 200},
+	"Giant":         {ElixirCost: 5, BaseDamage: 140, HitPoints: 2500, CritChance: 0.05},
+	"Musketeer":     {ElixirCost: 4, BaseDamage: 100, HitPoints: 600, CritChance: 0.10},
+	"Fireball":      {ElixirCost: 3, BaseDamage: 200, HitPoints: 0, CritChance: 0.15},
+	"Archers":       {ElixirCost: 3, BaseDamage: 120, HitPoints: 350, CritChance: 0.08},
+	"Knight":        {ElixirCost: 3, BaseDamage: 200, HitPoints: 800, CritChance: 0.08},
+	"Arrows":        {ElixirCost: 2, BaseDamage: 100, HitPoints: 0, CritChance: 0.10},
+	"Goblin Barrel": {ElixirCost: 3, BaseDamage: 60, HitPoints: 150, CritChance: 0.07},
+	"Minions":       {ElixirCost: 3, BaseDamage: 70, HitPoints: 200, CritChance: 0.09},
 }
 
 // ReplayData stores simulated replay information
@@ -40,31 +58,34 @@ type ReplayData struct {
 }
 
 // MockPlayer simulates the clash.Player structure from JSON
+// Connects to players.go: Mirrors clash.Player for Test Mode
 type MockPlayer struct {
 	Tag         string           `json:"tag"`
 	Name        string           `json:"name"`
 	ExpLevel    int              `json:"expLevel"`
 	Trophies    int              `json:"trophies"`
-	CurrentDeck []clash.Card     `json:"currentDeck"`
-	Clan        clash.PlayerClan `json:"clan"`
+	CurrentDeck []clash.Card     `json:"currentDeck"` // From players.go: clash.Card
+	Clan        clash.PlayerClan `json:"clan"`        // From players.go: clash.PlayerClan
 }
 
 // GameState stores the game state
 type GameState struct {
-	PlayerTowerHP int
-	EnemyTowerHP  int
-	PlayerElixir  float64
-	EnemyElixir   float64
+	PlayerTowers []Tower
+	EnemyTowers  []Tower
+	PlayerElixir float64
+	EnemyElixir  float64
 }
 
 func main() {
 	// Initialize logger
+	// Connects to client.go: Used for logging API errors/info
 	logger := &Logger{
 		infoLog:  log.New(os.Stdout, "INFO: ", log.LstdFlags),
 		errorLog: log.New(os.Stderr, "ERROR: ", log.LstdFlags),
 	}
 
-	// Declare player at the function scope
+	// Declare player
+	// Connects to players.go: clash.Player stores player data
 	var player clash.Player
 
 	// Select mode (test or live)
@@ -100,8 +121,9 @@ func main() {
 			return
 		}
 
-		// Create client
+		// Connects to client.go: Initializes clash.Client with NewClient
 		client = clash.NewClient(apiToken, logger.Error, logger.Info)
+		// Connects to client.go: Sets API latency logging
 		client.SetLogLatencyFunc(func(statusCode, method, host, path string, elapsed time.Duration) {
 			logger.Info("Latency %s %s -> %s (%s): %v", method, host, path, statusCode, elapsed)
 		})
@@ -143,6 +165,7 @@ func main() {
 				continue
 			}
 		} else {
+			// Connects to players.go: Fetches player data via client.Player(playerTag).Get()
 			var err error
 			player, err = client.Player(playerTag).Get()
 			if err != nil {
@@ -168,12 +191,12 @@ func main() {
 			fmt.Println("3. Ranked Mode (Battle with ranked players)")
 			fmt.Println("4. Clan War Mode (Battle in clan wars)")
 		}
-		fmt.Print("Enter number (1" + func() string {
-			if isTestMode {
-				return ")"
-			}
-			return "-4)"
-		}() + ": ")
+		// Fixed syntax error: Simplified prompt range
+		promptRange := "1"
+		if !isTestMode {
+			promptRange = "1-4"
+		}
+		fmt.Printf("Enter number (%s): ", promptRange)
 		scanner.Scan()
 		mode := strings.TrimSpace(scanner.Text())
 
@@ -205,6 +228,7 @@ func main() {
 			switch mode {
 			case "1": // Normal Mode
 				if player.Clan.Tag != "" {
+					// Connects to clans.go: Fetches clan members via client.Clan(player.Clan.Tag).Members()
 					members, err := client.Clan(player.Clan.Tag).Members()
 					if err == nil && len(members.Items) > 0 {
 						rand.Seed(time.Now().UnixNano())
@@ -221,6 +245,7 @@ func main() {
 				tournamentInput := strings.TrimSpace(scanner.Text())
 				if tournamentInput != "" {
 					tournamentInput = strings.Replace(tournamentInput, "#", "%23", -1)
+					// Connects to tournaments.go: Fetches tournament via client.Tournament(tournamentInput).Get()
 					tournament, err := client.Tournament(tournamentInput).Get()
 					if err == nil && len(tournament.MembersList) > 0 {
 						rand.Seed(time.Now().UnixNano())
@@ -228,6 +253,7 @@ func main() {
 						opponentName = opponent.(clash.TournamentMember).Name
 						opponentTrophies = opponent.(clash.TournamentMember).Score
 					} else {
+						// Connects to tournaments.go: Searches tournaments via client.Tournaments().Search()
 						query := &clash.TournamentQuery{Name: tournamentInput}
 						tournaments, err := client.Tournaments().Search(query)
 						if err == nil && len(tournaments.Items) > 0 {
@@ -249,6 +275,7 @@ func main() {
 				if locationID == "" {
 					locationID = "global"
 				}
+				// Connects to locations.go: Fetches rankings via client.Location(locationID).PlayerRankings()
 				rankings, err := client.Location(locationID).PlayerRankings(&clash.PagedQuery{Limit: 10})
 				if err == nil && len(rankings.Items) > 0 {
 					rand.Seed(time.Now().UnixNano())
@@ -260,6 +287,7 @@ func main() {
 				}
 			case "4": // Clan War Mode
 				if player.Clan.Tag != "" {
+					// Connects to clans.go: Fetches clan war via client.Clan(player.Clan.Tag).CurrentWar()
 					war, err := client.Clan(player.Clan.Tag).CurrentWar()
 					if err == nil && len(war.Participants) > 0 {
 						rand.Seed(time.Now().UnixNano())
@@ -286,6 +314,7 @@ func main() {
 		fmt.Printf("Opponent: %s (Trophies: %d)\n", opponentName, opponentTrophies)
 
 		// Play the game and store replay
+		// Connects to players.go: Uses clash.Player, clash.Card
 		replay := playGame(client, player, opponent, opponentName, logger, isTestMode)
 
 		// Display replay
@@ -303,33 +332,43 @@ func main() {
 	}
 }
 
+// playGame implements the game loop
+// Connects to players.go: Uses clash.Player, clash.Card
 func playGame(client *clash.Client, player clash.Player, opponent interface{}, opponentName string, logger *Logger, isTestMode bool) ReplayData {
 	// Display deck
 	fmt.Println("\nYour deck:")
 	for i, card := range player.CurrentDeck {
 		stats, exists := cardDatabase[card.Name]
 		if !exists {
-			stats = CardStats{ElixirCost: 3, BaseDamage: 50, HitPoints: 100}
+			stats = CardStats{ElixirCost: 3, BaseDamage: 50, HitPoints: 100, CritChance: 0.05}
 		}
-		fmt.Printf("%d. %s (Level %d, Elixir: %d, Damage: %d, HP: %d)\n",
-			i+1, card.Name, card.Level, stats.ElixirCost, stats.BaseDamage, stats.HitPoints)
+		fmt.Printf("%d. %s (Level %d, Elixir: %d, Damage: %d, HP: %d, Crit: %.0f%%)\n",
+			i+1, card.Name, card.Level, stats.ElixirCost, stats.BaseDamage, stats.HitPoints, stats.CritChance*100)
 	}
 
-	// Initialize game state
+	// Initialize game state with towers
 	rand.Seed(time.Now().UnixNano())
 	state := GameState{
-		PlayerTowerHP: 2000,
-		EnemyTowerHP:  2000,
-		PlayerElixir:  10.0,
-		EnemyElixir:   10.0,
+		PlayerTowers: []Tower{
+			{Type: "Guard Tower 1", HP: 1000, ATK: 300, DEF: 100, CRIT: 0.05, MaxHP: 1000},
+			{Type: "Guard Tower 2", HP: 1000, ATK: 300, DEF: 100, CRIT: 0.05, MaxHP: 1000},
+			{Type: "King Tower", HP: 2000, ATK: 500, DEF: 300, CRIT: 0.1, MaxHP: 2000},
+		},
+		EnemyTowers: []Tower{
+			{Type: "Guard Tower 1", HP: 1000, ATK: 300, DEF: 100, CRIT: 0.05, MaxHP: 1000},
+			{Type: "Guard Tower 2", HP: 1000, ATK: 300, DEF: 100, CRIT: 0.05, MaxHP: 1000},
+			{Type: "King Tower", HP: 2000, ATK: 500, DEF: 300, CRIT: 0.1, MaxHP: 2000},
+		},
+		PlayerElixir: 10.0,
+		EnemyElixir:  10.0,
 	}
 	replay := ReplayData{Actions: []string{}}
 
 	// Channels for communication
 	inputChan := make(chan string)
 	quitChan := make(chan bool)
-	// Set elixir regeneration time to 2s
-	elixirTick := time.NewTicker(2000 * time.Millisecond) // 2s for 1 elixir
+	// Set elixir regeneration time to 1s
+	elixirTick := time.NewTicker(1000 * time.Millisecond) // 1s for 1 elixir
 	enemyActionTick := time.NewTicker(5 * time.Second)    // Opponent acts every 5s
 	scanner := bufio.NewScanner(os.Stdin)
 
@@ -367,6 +406,7 @@ func playGame(client *clash.Client, player clash.Player, opponent interface{}, o
 			return replay
 
 		case input := <-inputChan:
+			// Parse input
 			choice, err := parseInt(input)
 			if err != nil || choice < 1 || choice > len(player.CurrentDeck) {
 				fmt.Println("Invalid choice. Please select a number from 1 to", len(player.CurrentDeck))
@@ -374,10 +414,11 @@ func playGame(client *clash.Client, player clash.Player, opponent interface{}, o
 			}
 
 			// Get selected card
+			// Connects to players.go: Uses clash.Card from player.CurrentDeck
 			selectedCard := player.CurrentDeck[choice-1]
 			stats, exists := cardDatabase[selectedCard.Name]
 			if !exists {
-				stats = CardStats{ElixirCost: 3, BaseDamage: 50, HitPoints: 100}
+				stats = CardStats{ElixirCost: 3, BaseDamage: 50, HitPoints: 100, CritChance: 0.05}
 			}
 
 			// Check elixir
@@ -386,24 +427,31 @@ func playGame(client *clash.Client, player clash.Player, opponent interface{}, o
 				continue
 			}
 
-			// Calculate damage
-			damage := calculateDamage(selectedCard, stats)
-			state.EnemyTowerHP -= damage
+			// Calculate and apply damage
+			damage, cardCrit, towerCrit := calculateDamage(selectedCard, stats, state.EnemyTowers)
+			result := applyDamage(&state.EnemyTowers, damage)
 			state.PlayerElixir -= float64(stats.ElixirCost)
 
 			// Save action to replay
-			action := fmt.Sprintf("Player used %s (Level %d) dealing %d damage", selectedCard.Name, selectedCard.Level, damage)
+			critText := ""
+			if cardCrit && towerCrit {
+				critText = " (Double CRIT)"
+			} else if cardCrit {
+				critText = " (Card CRIT)"
+			} else if towerCrit {
+				critText = " (Tower CRIT)"
+			}
+			action := fmt.Sprintf("Player used %s (Level %d) dealing %d damage%s to %s", selectedCard.Name, selectedCard.Level, damage, critText, result)
 			replay.Actions = append(replay.Actions, action)
 
 			// Display state
 			clearScreen()
-			fmt.Printf("\nYour Tower: %d HP | Opponent Tower: %d HP\n", max(0, state.PlayerTowerHP), max(0, state.EnemyTowerHP))
-			fmt.Printf("Your Elixir: %.1f | Opponent Elixir: %.1f\n", state.PlayerElixir, state.EnemyElixir)
-			fmt.Printf("You used %s (Level %d) dealing %d damage!\n", selectedCard.Name, selectedCard.Level, damage)
+			displayGameState(state)
+			fmt.Printf("You used %s (Level %d) dealing %d damage%s to %s!\n", selectedCard.Name, selectedCard.Level, damage, critText, result)
 
 			// Check for end
-			if state.EnemyTowerHP <= 0 {
-				fmt.Println("\nCongratulations! You destroyed the opponent's tower!")
+			if isKingTowerDestroyed(state.EnemyTowers) {
+				fmt.Println("\nCongratulations! You destroyed the opponent's King Tower!")
 				replay.Actions = append(replay.Actions, "Player won the match")
 				elixirTick.Stop()
 				enemyActionTick.Stop()
@@ -417,35 +465,43 @@ func playGame(client *clash.Client, player clash.Player, opponent interface{}, o
 
 			// Display state
 			clearScreen()
-			fmt.Printf("\nYour Tower: %d HP | Opponent Tower: %d HP\n", max(0, state.PlayerTowerHP), max(0, state.EnemyTowerHP))
-			fmt.Printf("Your Elixir: %.1f | Opponent Elixir: %.1f\n", state.PlayerElixir, state.EnemyElixir)
+			displayGameState(state)
 			fmt.Println("Select a card to attack (enter number from 1 to 8, or 0 to surrender): ")
 
 		case <-enemyActionTick.C:
 			// Opponent's turn
-			if state.EnemyTowerHP > 0 {
+			if !isKingTowerDestroyed(state.PlayerTowers) {
 				var enemyDeck []clash.Card
 				if isTestMode && opponent != nil {
+					// Connects to players.go: Uses clash.Card from MockPlayer.CurrentDeck
 					enemyDeck = opponent.(MockPlayer).CurrentDeck
 				} else {
 					enemyDeck = player.CurrentDeck // Simulate opponent using same deck
 				}
-				enemyDamage, enemyAction := simulateEnemyTurn(enemyDeck, state.EnemyElixir, opponentName)
+				enemyDamage, cardCrit, towerCrit, enemyAction := simulateEnemyTurn(enemyDeck, state.EnemyElixir, opponentName, state.PlayerTowers)
 				if enemyDamage > 0 {
-					state.PlayerTowerHP -= enemyDamage
+					result := applyDamage(&state.PlayerTowers, enemyDamage)
 					state.EnemyElixir -= 3
-					replay.Actions = append(replay.Actions, enemyAction)
+					critText := ""
+					if cardCrit && towerCrit {
+						critText = " (Double CRIT)"
+					} else if cardCrit {
+						critText = " (Card CRIT)"
+					} else if towerCrit {
+						critText = " (Tower CRIT)"
+					}
+					fullAction := fmt.Sprintf("%s dealing %d damage%s to %s", enemyAction, enemyDamage, critText, result)
+					replay.Actions = append(replay.Actions, fullAction)
 
 					// Display state
 					clearScreen()
-					fmt.Printf("\nYour Tower: %d HP | Opponent Tower: %d HP\n", max(0, state.PlayerTowerHP), max(0, state.EnemyTowerHP))
-					fmt.Printf("Your Elixir: %.1f | Opponent Elixir: %.1f\n", state.PlayerElixir, state.EnemyElixir)
-					fmt.Printf("Opponent %s used a card dealing %d damage!\n", opponentName, enemyDamage)
+					displayGameState(state)
+					fmt.Printf("Opponent %s used a card dealing %d damage%s to %s!\n", opponentName, enemyDamage, critText, result)
 				}
 
 				// Check for end
-				if state.PlayerTowerHP <= 0 {
-					fmt.Println("\nYou lost! Your tower was destroyed.")
+				if isKingTowerDestroyed(state.PlayerTowers) {
+					fmt.Println("\nYou lost! Your King Tower was destroyed.")
 					replay.Actions = append(replay.Actions, "Opponent won the match")
 					elixirTick.Stop()
 					enemyActionTick.Stop()
@@ -465,26 +521,97 @@ func playGame(client *clash.Client, player clash.Player, opponent interface{}, o
 	}
 }
 
-// calculateDamage calculates the card's damage
-func calculateDamage(card clash.Card, stats CardStats) int {
+// calculateDamage calculates the card's damage with crit chance for both card and tower
+func calculateDamage(card clash.Card, stats CardStats, targetTowers []Tower) (int, bool, bool) {
 	damage := stats.BaseDamage + (card.Level-1)*10
 	randomFactor := rand.Intn(21) - 10
-	return max(1, damage+randomFactor)
+
+	// Check card crit
+	cardCrit := rand.Float64() < stats.CritChance
+	towerCrit := false
+	critMultiplier := 1.0
+
+	// Check tower crit based on the first available tower
+	towerCritChance := 0.05 // Default to Guard Tower crit chance
+	for _, tower := range targetTowers {
+		if tower.HP > 0 {
+			towerCritChance = tower.CRIT
+			break
+		}
+	}
+	if rand.Float64() < towerCritChance {
+		towerCrit = true
+	}
+
+	// Apply crit multipliers
+	if cardCrit {
+		critMultiplier *= 1.5
+	}
+	if towerCrit {
+		critMultiplier *= 1.2
+	}
+
+	totalDamage := int(float64(damage+randomFactor) * critMultiplier)
+	return max(1, totalDamage), cardCrit, towerCrit
+}
+
+// applyDamage applies damage to the appropriate tower in order: Guard Tower 1, Guard Tower 2, King Tower
+func applyDamage(towers *[]Tower, damage int) string {
+	// Define the order of towers: Guard Tower 1, Guard Tower 2, King Tower
+	targetOrder := []string{"Guard Tower 1", "Guard Tower 2", "King Tower"}
+	for _, targetType := range targetOrder {
+		for i, tower := range *towers {
+			if tower.Type == targetType && tower.HP > 0 {
+				(*towers)[i].HP -= damage
+				if (*towers)[i].HP < 0 {
+					(*towers)[i].HP = 0
+				}
+				return fmt.Sprintf("%s (HP now %d)", tower.Type, (*towers)[i].HP)
+			}
+		}
+	}
+	return "No towers left"
+}
+
+// isKingTowerDestroyed checks if the King Tower is destroyed
+func isKingTowerDestroyed(towers []Tower) bool {
+	for _, tower := range towers {
+		if tower.Type == "King Tower" && tower.HP <= 0 {
+			return true
+		}
+	}
+	return false
+}
+
+// displayGameState prints the current state of towers and elixir
+func displayGameState(state GameState) {
+	fmt.Println("\n--- Game State ---")
+	fmt.Printf("Your Elixir: %.1f | Opponent Elixir: %.1f\n", state.PlayerElixir, state.EnemyElixir)
+	fmt.Println("Your Towers:")
+	for _, tower := range state.PlayerTowers {
+		fmt.Printf("  %s: %d/%d HP\n", tower.Type, max(0, tower.HP), tower.MaxHP)
+	}
+	fmt.Println("Opponent Towers:")
+	for _, tower := range state.EnemyTowers {
+		fmt.Printf("  %s: %d/%d HP\n", tower.Type, max(0, tower.HP), tower.MaxHP)
+	}
+	fmt.Println("-----------------")
 }
 
 // simulateEnemyTurn simulates the opponent's turn
-func simulateEnemyTurn(deck []clash.Card, enemyElixir float64, opponentName string) (int, string) {
+// Connects to players.go: Uses clash.Card from enemyDeck
+func simulateEnemyTurn(deck []clash.Card, enemyElixir float64, opponentName string, targetTowers []Tower) (int, bool, bool, string) {
 	if enemyElixir < 3 || len(deck) == 0 {
-		return 0, fmt.Sprintf("%s skipped turn (not enough elixir)", opponentName)
+		return 0, false, false, fmt.Sprintf("%s skipped turn (not enough elixir)", opponentName)
 	}
 	card := deck[rand.Intn(len(deck))]
 	stats, exists := cardDatabase[card.Name]
 	if !exists {
-		stats = CardStats{BaseDamage: 50}
+		stats = CardStats{BaseDamage: 50, CritChance: 0.05}
 	}
-	damage := calculateDamage(card, stats)
-	action := fmt.Sprintf("%s used %s (Level %d) dealing %d damage", opponentName, card.Name, card.Level, damage)
-	return damage, action
+	damage, cardCrit, towerCrit := calculateDamage(card, stats, targetTowers)
+	action := fmt.Sprintf("%s used %s (Level %d)", opponentName, card.Name, card.Level)
+	return damage, cardCrit, towerCrit, action
 }
 
 // parseInt converts string to int
@@ -519,6 +646,7 @@ func minFloat(a, b float64) float64 {
 }
 
 // Logger provides simple logging functionality
+// Connects to client.go: Used for API logging
 type Logger struct {
 	infoLog  *log.Logger
 	errorLog *log.Logger
